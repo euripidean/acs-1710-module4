@@ -41,22 +41,27 @@ def get_letter_for_units(units):
     """Returns a shorthand letter for the given units."""
     return 'F' if units == 'imperial' else 'C' if units == 'metric' else 'K'
 
+def get_weather_data(city, units):
+    """Function to get weather data"""
+
+    params = {
+    'appid': API_KEY,
+    'q': city,
+    'units': units,
+    }
+
+    result_json = requests.get(API_URL, params=params).json()
+    return result_json
+
+
+
 @app.route('/results', methods=['GET','POST'])
 def results():
     """Displays results for current weather conditions."""
     city = request.args.get('city')
     units = request.args.get('units')
 
-    params = {
-        'appid': API_KEY,
-        'q': city,
-        'units': units,
-    }
-
-    result_json = requests.get(API_URL, params=params).json()
-
-    current_date = datetime.now()
-
+    result_json = get_weather_data(city, units)
     
     context = {
         'date': datetime.now().strftime('%A, %B %d %Y'),
@@ -74,24 +79,52 @@ def results():
     return render_template('results.html', **context)
 
 
-@app.route('/comparison_results')
+
+
+
+@app.route('/comparison_results', methods=['GET', 'POST'])
 def comparison_results():
     """Displays the relative weather for 2 different cities."""
-    # TODO: Use 'request.args' to retrieve the cities & units from the query
-    # parameters.
-    city1 = ''
-    city2 = ''
-    units = ''
 
-    # TODO: Make 2 API calls, one for each city. HINT: You may want to write a 
-    # helper function for this!
+    city1 = request.args.get('city1')
+    city2 = request.args.get('city2')
+    units = request.args.get('units')
+
+    city1_results = get_weather_data(city1, units)
+    city2_results = get_weather_data(city2, units)
+
+    temp_diff = ''
+    humid_diff = ''
+    wind_diff = ''
+    sun_diff = ''
 
 
-    # TODO: Pass the information for both cities in the context. Make sure to
-    # pass info for the temperature, humidity, wind speed, and sunset time!
-    # HINT: It may be useful to create 2 new dictionaries, `city1_info` and 
-    # `city2_info`, to organize the data.
+
     context = {
+        'date': datetime.now().strftime('%A, %B %d %Y'),
+        'city1_info': {
+            'city': city1_results["name"],
+            'description': city1_results["weather"][0]["description"],
+            'temp': city1_results["main"]["temp"],
+            'humidity': city1_results["main"]["humidity"],
+            'wind_speed': city1_results["wind"]["speed"],
+            'sunrise': datetime.fromtimestamp(city1_results["sys"]["sunrise"]),
+            'sunset': datetime.fromtimestamp(city1_results["sys"]["sunset"]),
+            'units_letter': get_letter_for_units(units),
+            'icon': ICON_URL + city1_results["weather"][0]["icon"] + '@2x.png',
+        },
+        'city2_info': {
+            'city': city2_results["name"],
+            'description': city2_results["weather"][0]["description"],
+            'temp': city2_results["main"]["temp"],
+            'humidity': city2_results["main"]["humidity"],
+            'wind_speed': city2_results["wind"]["speed"],
+            'sunrise': datetime.fromtimestamp(city2_results["sys"]["sunrise"]),
+            'sunset': datetime.fromtimestamp(city2_results["sys"]["sunset"]),
+            'units_letter': get_letter_for_units(units),
+            'icon': ICON_URL + city2_results["weather"][0]["icon"] + '@2x.png',
+
+        }
 
     }
 
