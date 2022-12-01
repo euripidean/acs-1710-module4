@@ -4,26 +4,39 @@
 <section class="weather-form">
     <h1>Weather in {{city1_info["city"]}} and {{city2_info["city"]}}</h1>
     <p>{{date}}</p>
+    <p><strong>{{city1_info["city"]}}</strong><img src="{{city1_info['icon']}}" alt="weather icon"></p>
+    <ul>
+        <li>Temperature: {{city1_info["temp"]}}</li>
+        <li>Description: {{city1_info["description"]}}</li>
+        <li>Max Temperature: {{city1_info["max_temp"]}}{{units_letter}}</li>
+        <li>Min Temperature: {{city1_info["min_temp"]}}{{units_letter}}</li>
+    </ul>
+    <hr>
+    <p><strong>{{city2_info["city"]}}</strong><img src="{{city2_info['icon']}}" alt="weather icon"></p>
+    <ul>
+        <li>Temperature: {{city2_info["temp"]}}</li>
+        <li>Description: {{city2_info["description"]}}</li>
+        <li>Max Temperature: {{city2_info["max_temp"]}}{{units_letter}}</li>
+        <li>Min Temperature: {{city2_info["min_temp"]}}{{units_letter}}</li>
+    </ul>
+    <hr>
+    <h2>Summary</h2>
 
 
-    {#
-        TODO: Add the temperature, description, and min & max temperature below.
-        Replace 'F' with the appropriate units.
-    #}
     <p>
-        It is [NUM_DEGREES] [UNITS] [WARMER/COLDER] in {{city1_info["city"]}} than in {{city2_info["city"]}} today.
+        It is {{temp_diff[0]}} {{units_letter}} {{temp_diff[1]}} in {{city1_info["city"]}} than in {{city2_info["city"]}} today.
     </p>
 
     <p>
-        The humidity in {{city1_info["city"]}} is [AMOUNT] [GREATER/LESS] than in {{city2_info["city"]}}.
+        The humidity in {{city1_info["city"]}} is {{humid_diff[0]}}%rh {{humid_diff[1]}} than in {{city2_info["city"]}}.
     </p>
 
     <p>
-        The wind speed in {{city1_info["city"]}} is [AMOUNT] [GREATER/LESS] than in {{city2_info["city"]}}.
+        The wind speed in {{city1_info["city"]}} is {{wind_diff[0]}}kn {{wind_diff[1]}} than in {{city2_info["city"]}}.
     </p>
 
     <p>
-        The sun sets in {{city1_info["city"]}} [HOURS] hours [EARLIER/LATER] than in {{city2_info["city"]}}.
+        The sun sets in {{city1_info["city"]}} {{sun_diff[0]}} hours {{sun_diff[1]}} than in {{city2_info["city"]}}.
     </p>
     
 </section>

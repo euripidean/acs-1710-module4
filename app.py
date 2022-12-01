@@ -53,7 +53,32 @@ def get_weather_data(city, units):
     result_json = requests.get(API_URL, params=params).json()
     return result_json
 
-
+def calculate_difference(city1, city2, weather_type):
+    """Function to calculate differences in weather"""
+    difference = city1 - city2
+    if difference > city1:
+        if weather_type == 'temp':
+            description = 'warmer'
+        elif weather_type == 'wind' or weather_type == 'humidity':
+            ('Inside humidity wind 1')
+            description = 'greater'
+        else:
+            difference = (difference / 60)/360
+            description = 'later'
+    else:
+        if difference < 0:
+            difference = difference * -1
+        if weather_type == 'temp':
+            description = 'colder'
+        elif weather_type == 'wind' or weather_type == 'humidity':
+            print('Inside humidity, wind')
+            description = 'less'
+        else:
+            difference = (difference / 60)/360
+            description = 'earlier'
+    difference = round(difference, 2)
+    return [difference, description]
+        
 
 @app.route('/results', methods=['GET','POST'])
 def results():
@@ -62,6 +87,7 @@ def results():
     units = request.args.get('units')
 
     result_json = get_weather_data(city, units)
+    pp.pprint(result_json)
     
     context = {
         'date': datetime.now().strftime('%A, %B %d %Y'),
@@ -92,38 +118,58 @@ def comparison_results():
 
     city1_results = get_weather_data(city1, units)
     city2_results = get_weather_data(city2, units)
+    
+    #calculate differences
+    temp_diff = calculate_difference(
+        city1_results["main"]["temp"],
+        city2_results["main"]["temp"],
+        'temp')
 
-    temp_diff = ''
-    humid_diff = ''
-    wind_diff = ''
-    sun_diff = ''
+    humid_diff = calculate_difference(
+        city1_results["main"]["humidity"],
+        city2_results["main"]["humidity"],
+        'humidity')
 
+    wind_diff = calculate_difference(
+        city1_results["wind"]["speed"],
+        city2_results["wind"]["speed"],
+        'wind')
 
+    sun_diff = calculate_difference(
+        (city1_results["sys"]["sunset"]),
+        (city2_results["sys"]["sunset"]),
+        'sun')
 
     context = {
+        'temp_diff': temp_diff,
+        'humid_diff': humid_diff,
+        'wind_diff': wind_diff,
+        'sun_diff': sun_diff,
+        'units_letter': get_letter_for_units(units),
         'date': datetime.now().strftime('%A, %B %d %Y'),
         'city1_info': {
             'city': city1_results["name"],
             'description': city1_results["weather"][0]["description"],
             'temp': city1_results["main"]["temp"],
+            'max_temp': city1_results["main"]["temp_max"],
+            'min_temp': city1_results["main"]["temp_min"],
             'humidity': city1_results["main"]["humidity"],
             'wind_speed': city1_results["wind"]["speed"],
             'sunrise': datetime.fromtimestamp(city1_results["sys"]["sunrise"]),
             'sunset': datetime.fromtimestamp(city1_results["sys"]["sunset"]),
-            'units_letter': get_letter_for_units(units),
             'icon': ICON_URL + city1_results["weather"][0]["icon"] + '@2x.png',
         },
         'city2_info': {
             'city': city2_results["name"],
             'description': city2_results["weather"][0]["description"],
             'temp': city2_results["main"]["temp"],
+            'max_temp': city2_results["main"]["temp_max"],
+            'min_temp': city2_results["main"]["temp_min"],
             'humidity': city2_results["main"]["humidity"],
             'wind_speed': city2_results["wind"]["speed"],
             'sunrise': datetime.fromtimestamp(city2_results["sys"]["sunrise"]),
             'sunset': datetime.fromtimestamp(city2_results["sys"]["sunset"]),
-            'units_letter': get_letter_for_units(units),
             'icon': ICON_URL + city2_results["weather"][0]["icon"] + '@2x.png',
-
         }
 
     }
